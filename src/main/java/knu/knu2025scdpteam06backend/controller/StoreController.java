@@ -1,13 +1,11 @@
 package knu.knu2025scdpteam06backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import knu.knu2025scdpteam06backend.dto.StoreResponseDto;
+import knu.knu2025scdpteam06backend.dto.store.StoreResponseDto;
+import knu.knu2025scdpteam06backend.dto.store.StoreUpdateRequestDto;
 import knu.knu2025scdpteam06backend.service.StoreService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/store"
@@ -29,4 +27,13 @@ public class StoreController {
         StoreResponseDto store = storeService.getStoreById(id;
         return ResponseEntity.ok(store;
     }
+
+    @PatchMapping("/{id}"
+    public ResponseEntity<Void> updateStorePartially(
+            @PathVariable Long id,
+            @RequestBody StoreUpdateRequestDto dto {
+        storeService.updateStore(id, dto;
+        return ResponseEntity.noContent(.build(; // 204 No Content
+    }
+
 }
