@@ -30,6 +30,8 @@ public class StoreService {
         if (dto.getMbId( != null store.setMbId(dto.getMbId(;
         if (dto.getName( != null store.setName(dto.getName(;
         if (dto.getAddress( != null store.setAddress(dto.getAddress(;
+        if (dto.getLatitude( != null store.setLatitude(dto.getLatitude(;
+        if (dto.getLongitude( != null store.setLongitude(dto.getLongitude(;
         if (dto.getCluster( != null store.setCluster(dto.getCluster(;
     }
 }
