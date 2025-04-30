@@ -28,6 +28,10 @@ public class StoreController {
         return ResponseEntity.ok(store;
     }
 
+    @Operation(
+            summary = "매장 정보 수정",
+            description = "사업자번호, 매장명, 도로명주소, cluster를 변경할 수 있습니다. 바꾸길 원하는 것만 입력하여 바꿀 수 있습니다."
+    
     @PatchMapping("/{id}"
     public ResponseEntity<Void> updateStorePartially(
             @PathVariable Long id,
