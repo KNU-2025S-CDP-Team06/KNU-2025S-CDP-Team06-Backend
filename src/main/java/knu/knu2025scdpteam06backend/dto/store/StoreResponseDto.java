@@ -1,4 +1,4 @@
-package knu.knu2025scdpteam06backend.dto;
+package knu.knu2025scdpteam06backend.dto.store;
 import lombok.Getter;
 
 @Getter
