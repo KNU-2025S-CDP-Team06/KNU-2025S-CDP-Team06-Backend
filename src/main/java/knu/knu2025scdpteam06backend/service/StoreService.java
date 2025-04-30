@@ -3,6 +3,7 @@ package knu.knu2025scdpteam06backend.service;
 import jakarta.transaction.Transactional;
 import knu.knu2025scdpteam06backend.domain.store.Store;
 import knu.knu2025scdpteam06backend.domain.store.StoreRepository;
+import knu.knu2025scdpteam06backend.dto.store.StoreCreateRequestDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreResponseDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreUpdateRequestDto;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,20 @@ public class StoreService {
         Store store = storeRepository.findById(id
                 .orElseThrow(( -> new IllegalArgumentException("해당 매장이 존재하지 않습니다. id=" + id;
         return new StoreResponseDto(store.getMbId(, store.getName(, store.getAddress(;
+    }
+
+    @Transactional
+    public Long createStore(StoreCreateRequestDto dto {
+        Store store = Store.builder(
+                .mbId(dto.getMbId(
+                .name(dto.getName(
+                .address(dto.getAddress(
+                .latitude(dto.getLatitude(
+                .longitude(dto.getLongitude(
+                .build(;
+        storeRepository.save(store;
+
+        return store.getId(;
     }
 
     @Transactional

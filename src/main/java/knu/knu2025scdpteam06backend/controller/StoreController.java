@@ -1,6 +1,7 @@
 package knu.knu2025scdpteam06backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import knu.knu2025scdpteam06backend.dto.store.StoreCreateRequestDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreResponseDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreUpdateRequestDto;
 import knu.knu2025scdpteam06backend.service.StoreService;
@@ -26,6 +27,16 @@ public class StoreController {
             @PathVariable Long id {
         StoreResponseDto store = storeService.getStoreById(id;
         return ResponseEntity.ok(store;
+    }
+
+    @Operation(
+            summary = "매장 추가",
+            description = "매장 정보를 추가합니다."
+    
+    @PostMapping
+    public ResponseEntity<Void> createStore(@RequestBody StoreCreateRequestDto dto {
+        Long id = storeService.createStore(dto;
+        return ResponseEntity.noContent(.build(;
     }
 
     @Operation(
