@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "daily_data", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"store_id", "date_time"}
+        @UniqueConstraint(columnNames = {"store_id", "date"}
 }
 @Getter
 @NoArgsConstructor
