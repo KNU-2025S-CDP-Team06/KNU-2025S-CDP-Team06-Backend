@@ -37,5 +37,5 @@ public class Sales {
 
     private Integer count;
 
-    private LocalDateTime dateTime;
+    private LocalDateTime date;
 }

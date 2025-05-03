@@ -27,7 +27,7 @@ public class DailyData {
     @JoinColumn(name = "store_id", nullable = false
     private Store store;
 
-    private LocalDateTime dateTime;
+    private LocalDateTime date;
 
     private Integer totalRevenue;
 
