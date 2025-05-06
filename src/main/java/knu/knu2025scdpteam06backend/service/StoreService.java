@@ -20,7 +20,13 @@ public class StoreService {
     public StoreResponseDto getStoreById(Long id {
         Store store = storeRepository.findById(id
                 .orElseThrow(( -> new IllegalArgumentException("해당 매장이 존재하지 않습니다. id=" + id;
-        return new StoreResponseDto(store.getMbId(, store.getName(, store.getAddress(;
+        return new StoreResponseDto(store.getId(, store.getMbId(, store.getName(, store.getAddress(;
+    }
+
+    public StoreResponseDto getStoreByMbId(String id {
+        Store store = storeRepository.findByMbId(id
+                .orElseThrow(( -> new IllegalArgumentException("해당 매장이 존재하지 않습니다. id=" + id;
+        return new StoreResponseDto(store.getId(, store.getMbId(, store.getName(, store.getAddress(;
     }
 
     @Transactional
@@ -38,8 +44,8 @@ public class StoreService {
     }
 
     @Transactional
-    public void updateStore(Long id, StoreUpdateRequestDto dto {
-        Store store = storeRepository.findById(id
+    public void updateStore(String id, StoreUpdateRequestDto dto {
+        Store store = storeRepository.findByMbId(id
                 .orElseThrow(( -> new IllegalArgumentException("해당 매장이 존재하지 않습니다. id=" + id;
 
         if (dto.getMbId( != null store.setMbId(dto.getMbId(;
