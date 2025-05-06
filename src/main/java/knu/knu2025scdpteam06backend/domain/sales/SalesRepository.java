@@ -5,9 +5,11 @@ import knu.knu2025scdpteam06backend.domain.menu.Menu;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface SalesRepository extends JpaRepository<Sales, Long> {
-    Optional<Sales> findByDailyDataAndMenu(DailyData dailyData, Menu menu;
+    List<Sales> findByStoreIdAndDatetimeBetween(Long id, LocalDateTime start, LocalDateTime end;
 }
