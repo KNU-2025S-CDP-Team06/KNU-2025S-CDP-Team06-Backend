@@ -1,5 +1,7 @@
 package knu.knu2025scdpteam06backend.domain.menu;
 
+import jakarta.annotation.Nullable;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
