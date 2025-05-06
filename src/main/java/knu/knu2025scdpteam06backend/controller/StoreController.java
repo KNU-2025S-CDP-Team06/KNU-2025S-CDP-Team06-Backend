@@ -24,8 +24,8 @@ public class StoreController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<StoreResponseDto> getStore(
-            @PathVariable Long id) {
-        StoreResponseDto store = storeService.getStoreById(id);
+            @PathVariable String id) {
+        StoreResponseDto store = storeService.getStoreByMbId(id);
         return ResponseEntity.ok(store);
     }
 
@@ -45,7 +45,7 @@ public class StoreController {
     )
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateStorePartially(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody StoreUpdateRequestDto dto) {
         storeService.updateStore(id, dto);
         return ResponseEntity.noContent().build(); // 204 No Content
