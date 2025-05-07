@@ -82,12 +82,17 @@ public class SalesService {
             RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(mbId, today.toString(;
             if (realTimeSalesDto == null return Collections.emptyList(;
 
+            int totalRevenue = 0;
+            int totalCount = 0;
             List<SalesDataDto> dataList = new ArrayList<>(;
+
             for (RealTimeSalesDto.SalesDataDto salesDataDto : realTimeSalesDto.getData( {
 
                 Optional<Menu> menu = menuRepository.findById(salesDataDto.getMenuId(;
 
                 if (requestDto.getEndHour( >= Integer.parseInt(salesDataDto.getHour({
+                    totalRevenue += salesDataDto.getCount( * menu.get(.getPrice(;
+                    totalCount += salesDataDto.getCount(;
                     dataList.add(
                             SalesDataDto.builder(
                                     .count(salesDataDto.getCount(
@@ -104,8 +109,8 @@ public class SalesService {
 
             result.add(SalesResponseDto.builder(
                     .date(today.toString(
-                    .totalRevenue(realTimeSalesDto.getTotalRevenue(
-                    .totalCount(realTimeSalesDto.getTotalCount(
+                    .totalRevenue(totalRevenue
+                    .totalCount(totalCount
                     .salesData(dataList
                     .build(;
         }
