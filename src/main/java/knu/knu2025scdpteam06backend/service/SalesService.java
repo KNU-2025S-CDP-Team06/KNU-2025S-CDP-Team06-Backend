@@ -76,7 +76,7 @@ public class SalesService {
                     .build());
         }
 
-        if (LocalDate.parse(requestDto.getEndDate()).isAfter(LocalDate.now())){
+        if (LocalDate.parse(requestDto.getEndDate()).equals(LocalDate.now()) || LocalDate.parse(requestDto.getEndDate()).isAfter(LocalDate.now())){
 
             RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(mbId, LocalDate.now().toString());
             if (realTimeSalesDto == null) return Collections.emptyList();
