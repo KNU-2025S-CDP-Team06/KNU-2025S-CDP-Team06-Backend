@@ -1,10 +1,13 @@
 package knu.knu2025scdpteam06backend.service;
 
 import jakarta.transaction.Transactional;
+import knu.knu2025scdpteam06backend.domain.menu.Menu;
+import knu.knu2025scdpteam06backend.domain.menu.MenuRepository;
 import knu.knu2025scdpteam06backend.domain.sales.Sales;
 import knu.knu2025scdpteam06backend.domain.sales.SalesRepository;
 import knu.knu2025scdpteam06backend.domain.store.Store;
 import knu.knu2025scdpteam06backend.domain.store.StoreRepository;
+import knu.knu2025scdpteam06backend.dto.sales.RealTimeSalesDto;
 import knu.knu2025scdpteam06backend.dto.sales.SalesRequestDto;
 import knu.knu2025scdpteam06backend.dto.sales.SalesResponseDto;
 import knu.knu2025scdpteam06backend.dto.sales.SalesResponseDto.SalesDataDto;
@@ -13,6 +16,7 @@ import knu.knu2025scdpteam06backend.dto.sales.TotalSalesResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -24,6 +28,8 @@ public class SalesService {
 
     private final SalesRepository salesRepository;
     private final StoreRepository storeRepository;
+    private final MenuRepository menuRepository;
+    private final WebClientService webClientService;
 
     public List<SalesResponseDto> getSalesByStore(String mbId, SalesRequestDto requestDto) {
 
@@ -66,6 +72,35 @@ public class SalesService {
                     .date(date)
                     .totalRevenue(totalRevenue)
                     .totalCount(totalCount)
+                    .salesData(dataList)
+                    .build());
+        }
+
+        if (LocalDate.parse(requestDto.getEndDate()).isAfter(LocalDate.now())){
+
+            RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(mbId, LocalDate.now().toString());
+            if (realTimeSalesDto == null) return Collections.emptyList();
+
+            List<SalesDataDto> dataList = new ArrayList<>();
+            for (RealTimeSalesDto.SalesDataDto salesDataDto : realTimeSalesDto.getData()) {
+                Optional<Menu> menu = menuRepository.findById(salesDataDto.getMenuId());
+                dataList.add(
+                        SalesDataDto.builder()
+                                .count(salesDataDto.getCount())
+                                .datetime(salesDataDto.getDate())
+                                .menu(MenuDto.builder()
+                                        .name(menu.get().getName())
+                                        .image(menu.get().getImage())
+                                        .price(menu.get().getPrice())
+                                        .build())
+                                .build()
+                );
+            }
+
+            result.add(SalesResponseDto.builder()
+                    .date(LocalDateTime.now().toString())
+                    .totalRevenue(realTimeSalesDto.getTotalRevenue())
+                    .totalCount(realTimeSalesDto.getTotalCount())
                     .salesData(dataList)
                     .build());
         }
