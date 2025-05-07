@@ -1,4 +1,4 @@
-package knu.knu2025scdpteam06backend.domain.prediction;
+package knu.knu2025scdpteam06backend.domain.forecast;
 
 import jakarta.persistence.*;
 import knu.knu2025scdpteam06backend.domain.store.Store;
