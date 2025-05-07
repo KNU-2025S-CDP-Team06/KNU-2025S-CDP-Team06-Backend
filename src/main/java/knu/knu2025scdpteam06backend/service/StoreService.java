@@ -6,16 +6,14 @@ import knu.knu2025scdpteam06backend.domain.store.StoreRepository;
 import knu.knu2025scdpteam06backend.dto.store.StoreCreateRequestDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreResponseDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreUpdateRequestDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class StoreService {
 
     private final StoreRepository storeRepository;
-
-    public StoreService(StoreRepository storeRepository {
-        this.storeRepository = storeRepository;
-    }
 
     public StoreResponseDto getStoreById(Long id {
         Store store = storeRepository.findById(id

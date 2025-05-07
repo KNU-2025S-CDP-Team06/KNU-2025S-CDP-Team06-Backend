@@ -15,7 +15,7 @@ public class WebClientService{
 
     public RealTimeSalesDto getRealTimeSalesData(String mbId, String date{
 
-        RealTimeSalesDto realTimeSalesDto = webClient.get(
+        return webClient.get(
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("mb_id", mbId
                         .queryParam("date", date
@@ -23,7 +23,6 @@ public class WebClientService{
                 .retrieve(
                 .bodyToMono(RealTimeSalesDto.class
                 .block(;
-        return realTimeSalesDto;
     }
 
 }
