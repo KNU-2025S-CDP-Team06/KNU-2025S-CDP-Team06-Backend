@@ -1,6 +1,5 @@
 package knu.knu2025scdpteam06backend.service;
 
-import jakarta.transaction.Transactional;
 import knu.knu2025scdpteam06backend.domain.menu.Menu;
 import knu.knu2025scdpteam06backend.domain.menu.MenuRepository;
 import knu.knu2025scdpteam06backend.domain.sales.Sales;
