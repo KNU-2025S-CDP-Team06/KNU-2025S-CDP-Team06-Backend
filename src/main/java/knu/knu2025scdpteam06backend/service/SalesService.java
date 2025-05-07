@@ -75,29 +75,35 @@ public class SalesService {
                     .build(;
         }
 
-        if (LocalDate.parse(requestDto.getEndDate(.equals(LocalDate.now( || LocalDate.parse(requestDto.getEndDate(.isAfter(LocalDate.now({
+        // 실시간 데이터 받아오기
+        LocalDate today = LocalDate.now(;
+        if (LocalDate.parse(requestDto.getEndDate(.equals(today || LocalDate.parse(requestDto.getEndDate(.isAfter(today{
 
-            RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(mbId, LocalDate.now(.toString(;
+            RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(mbId, today.toString(;
             if (realTimeSalesDto == null return Collections.emptyList(;
 
             List<SalesDataDto> dataList = new ArrayList<>(;
             for (RealTimeSalesDto.SalesDataDto salesDataDto : realTimeSalesDto.getData( {
+
                 Optional<Menu> menu = menuRepository.findById(salesDataDto.getMenuId(;
-                dataList.add(
-                        SalesDataDto.builder(
-                                .count(salesDataDto.getCount(
-                                .datetime(salesDataDto.getDate(
-                                .menu(MenuDto.builder(
-                                        .name(menu.get(.getName(
-                                        .image(menu.get(.getImage(
-                                        .price(menu.get(.getPrice(
-                                        .build(
-                                .build(
-                ;
+
+                if (requestDto.getEndHour( >= Integer.parseInt(salesDataDto.getHour({
+                    dataList.add(
+                            SalesDataDto.builder(
+                                    .count(salesDataDto.getCount(
+                                    .datetime(salesDataDto.getDate( + "-" + salesDataDto.getHour(
+                                    .menu(MenuDto.builder(
+                                            .name(menu.get(.getName(
+                                            .image(menu.get(.getImage(
+                                            .price(menu.get(.getPrice(
+                                            .build(
+                                    .build(
+                    ;
+                }
             }
 
             result.add(SalesResponseDto.builder(
-                    .date(LocalDateTime.now(.toString(
+                    .date(today.toString(
                     .totalRevenue(realTimeSalesDto.getTotalRevenue(
                     .totalCount(realTimeSalesDto.getTotalCount(
                     .salesData(dataList
