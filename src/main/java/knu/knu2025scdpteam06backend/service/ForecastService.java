@@ -8,7 +8,6 @@ import knu.knu2025scdpteam06backend.dto.forecast.ForecastResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -18,12 +17,11 @@ public class ForecastService {
     private final ForecastRepository forecastRepository;
     private final StoreRepository storeRepository;
 
-    public ForecastResponseDto getForecastByStore(String mbId, String date {
+    public ForecastResponseDto getForecastByStore(String mbId, LocalDateTime dateTime {
         Store store = storeRepository.findByMbId(mbId
                 .orElseThrow(( -> new RuntimeException("매장을 찾을 수 없습니다: " + mbId;
 
-        LocalDateTime targetDate = LocalDate.parse(date.atStartOfDay(;
-        Forecast forecast = forecastRepository.getForecastsByStoreIdAndDate(store.getId(, targetDate;
+        Forecast forecast = forecastRepository.getForecastsByStoreIdAndDateTime(store.getId(, dateTime;
         return ForecastResponseDto.builder(
                 .prophetForecast(forecast.getProphetForecast(
                 .xgboostForecast(forecast.getXgboostForecast(

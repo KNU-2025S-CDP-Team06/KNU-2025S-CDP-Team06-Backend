@@ -7,6 +7,7 @@ import knu.knu2025scdpteam06backend.service.SalesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -19,8 +20,8 @@ public class SalesController {
     @GetMapping("/{id}"
     public List<SalesResponseDto> getSalesData(
             @PathVariable String id,
-            @RequestParam String startDate,
-            @RequestParam String endDate,
+            @RequestParam LocalDateTime startDate,
+            @RequestParam LocalDateTime endDate,
             @RequestParam(required = false Integer startHour,
             @RequestParam(required = false Integer endHour
      {
@@ -37,8 +38,8 @@ public class SalesController {
     @GetMapping("/total/{id}"
     public TotalSalesResponseDto getTotalSales(
             @PathVariable String id,
-            @RequestParam String startDate,
-            @RequestParam String endDate,
+            @RequestParam LocalDateTime startDate,
+            @RequestParam LocalDateTime endDate,
             @RequestParam(required = false Integer startHour,
             @RequestParam(required = false Integer endHour
     {

@@ -16,7 +16,7 @@ public class Weather {
     @JoinColumn(name = "store_id", nullable = false
     private Store store;
 
-    private LocalDateTime date;
+    private LocalDateTime dateTime;
 
     private Integer weekday;
 

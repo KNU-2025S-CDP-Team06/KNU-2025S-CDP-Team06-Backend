@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -13,7 +14,7 @@ import java.util.List;
 @Builder
 public class SalesResponseDto {
 
-    private String date;  // yyyy-MM-dd
+    private LocalDateTime date;  // yyyy-MM-dd
     private int totalRevenue;
     private int totalCount;
     private List<SalesDataDto> salesData;
@@ -24,7 +25,7 @@ public class SalesResponseDto {
     @Builder
     public static class SalesDataDto {
         private int count;
-        private String datetime;  // yyyy-MM-dd-HH
+        private LocalDateTime dateTime;
 
         private MenuDto menu;
 

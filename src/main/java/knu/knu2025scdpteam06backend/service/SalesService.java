@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,7 +35,7 @@ public class SalesService {
 
         // 날짜별 그룹화
         Map<String, List<Sales>> grouped = salesList.stream(
-                .collect(Collectors.groupingBy(s -> s.getDatetime(.toLocalDate(.toString(;
+                .collect(Collectors.groupingBy(s -> s.getDateTime(.toLocalDate(.toString(;
 
         // 응답 변환
         List<SalesResponseDto> result = new ArrayList<>(;
@@ -57,7 +56,7 @@ public class SalesService {
                 dataList.add(
                         SalesDataDto.builder(
                                 .count(count
-                                .datetime(sale.getDatetime(.format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH"
+                                .dateTime(sale.getDateTime(
                                 .menu(MenuDto.builder(
                                         .name(sale.getMenu(.getName(
                                         .image(sale.getMenu(.getImage(
@@ -68,7 +67,7 @@ public class SalesService {
             }
 
             result.add(SalesResponseDto.builder(
-                    .date(date
+                    .date(LocalDate.parse(date.atStartOfDay(
                     .totalRevenue(totalRevenue
                     .totalCount(totalCount
                     .salesData(dataList
@@ -77,7 +76,7 @@ public class SalesService {
 
         // 실시간 데이터 받아오기
         LocalDate today = LocalDate.now(;
-        if (LocalDate.parse(requestDto.getEndDate(.equals(today || LocalDate.parse(requestDto.getEndDate(.isAfter(today{
+        if (requestDto.getEndDate(.toLocalDate(.equals(today || requestDto.getEndDate(.toLocalDate(.isAfter(today{
 
             RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(mbId, today.toString(;
             if (realTimeSalesDto == null return Collections.emptyList(;
@@ -99,7 +98,7 @@ public class SalesService {
                         dataList.add(
                                 SalesDataDto.builder(
                                         .count(salesDataDto.getCount(
-                                        .datetime(salesDataDto.getDate( + "-" + salesDataDto.getHour(
+                                        .dateTime(LocalDate.parse(salesDataDto.getDate(.atStartOfDay(.plusHours(Integer.parseInt(salesDataDto.getHour(
                                         .menu(MenuDto.builder(
                                                 .name(menu.get(.getName(
                                                 .image(menu.get(.getImage(
@@ -116,7 +115,7 @@ public class SalesService {
                         dataList.add(
                                 SalesDataDto.builder(
                                         .count(salesDataDto.getCount(
-                                        .datetime(salesDataDto.getDate( + "-" + salesDataDto.getHour(
+                                        .dateTime(LocalDate.parse(salesDataDto.getDate(.atStartOfDay(.plusHours(Integer.parseInt(salesDataDto.getHour(
                                         .menu(MenuDto.builder(
                                                 .name(menu.get(.getName(
                                                 .image(menu.get(.getImage(
@@ -129,7 +128,7 @@ public class SalesService {
             }
 
             result.add(SalesResponseDto.builder(
-                    .date(today.toString(
+                    .date(today.atStartOfDay(
                     .totalRevenue(totalRevenue
                     .totalCount(totalCount
                     .salesData(dataList
@@ -158,7 +157,7 @@ public class SalesService {
             salesData.add(
                     TotalSalesResponseDto.SalesDataDto.builder(
                             .count(count
-                            .datetime(sale.getDatetime(.format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH"
+                            .dateTime(sale.getDateTime(
                             .menu(
                                     TotalSalesResponseDto.SalesDataDto.MenuDto.builder(
                                             .name(sale.getMenu(.getName(
@@ -184,17 +183,13 @@ public class SalesService {
         int startHour = requestDto.getStartHour( != null ? requestDto.getStartHour( : 0;
         int endHour = requestDto.getEndHour( != null ? requestDto.getEndHour( : 23;
 
-        LocalDateTime startDateTime = LocalDateTime.parse(
-                requestDto.getStartDate( + "T" + String.format("%02d:00:00", startHour
-        ;
-        LocalDateTime endDateTime = LocalDateTime.parse(
-                requestDto.getEndDate( + "T" + String.format("%02d:00:00", endHour
-        ;
+        LocalDateTime startDateTime = requestDto.getStartDate(.plusHours(startHour;
+        LocalDateTime endDateTime = requestDto.getEndDate(.plusHours(endHour;
 
-        List<Sales> salesList = salesRepository.findByStoreIdAndDatetimeBetween(
+        List<Sales> salesList = salesRepository.findByStoreIdAndDateTimeBetween(
                 store.getId(, startDateTime, endDateTime
         ;
 
-        return  salesList;
+        return salesList;
     }
 }

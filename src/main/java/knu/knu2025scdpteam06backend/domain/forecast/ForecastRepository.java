@@ -7,5 +7,5 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface ForecastRepository extends JpaRepository<Forecast, Long> {
-    Forecast getForecastsByStoreIdAndDate(Long storeId, LocalDateTime date;
+    Forecast getForecastsByStoreIdAndDateTime(Long storeId, LocalDateTime date;
 }

@@ -25,7 +25,8 @@ public class Forecast {
     @JoinColumn(name = "store_id", nullable = false
     private Store store;
 
-    private LocalDateTime date;
+    @Column(name = "date"
+    private LocalDateTime dateTime;
 
     private Integer prophetForecast;
 
