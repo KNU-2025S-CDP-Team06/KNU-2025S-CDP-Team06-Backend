@@ -37,5 +37,6 @@ public class Sales {
 
     private Integer count;
 
-    private LocalDateTime datetime;
+    @Column(name = "datetime", nullable = false)
+    private LocalDateTime dateTime;
 }
