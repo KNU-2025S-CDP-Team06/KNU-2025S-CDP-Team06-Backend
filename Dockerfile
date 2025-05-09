@@ -18,4 +18,4 @@ RUN chmod +x ./gradlew
 RUN ./gradlew build -x test --no-daemon
 
 # jar 복사해서 실행 (빌드된 jar 이름 맞춰서 수정!
-CMD ["java", "-jar", "build/libs/KNU-2025S-CDP-Team06-Backend-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "-Duser.timezone=Asia/Seoul", "build/libs/KNU-2025S-CDP-Team06-Backend-0.0.1-SNAPSHOT.jar"]
