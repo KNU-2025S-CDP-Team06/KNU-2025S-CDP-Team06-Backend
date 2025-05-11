@@ -90,6 +90,20 @@ public class SalesService {
             for (RealTimeSalesDto.SalesDataDto salesDataDto : realTimeSalesDto.getData()) {
 
                 Optional<Menu> menu = menuRepository.findById(salesDataDto.getMenuId());
+                if (menu.isEmpty()) {
+                    Long id = salesDataDto.getMenuId();
+                    String name = salesDataDto.getMenuName();
+                    Integer revenue = salesDataDto.getRevenue();
+                    Integer count = salesDataDto.getCount();
+                    Integer price = revenue / count;
+
+                    menuRepository.save(Menu.builder().
+                            id(id).
+                            name(name).
+                            price(price).
+                            build());
+                    menu = menuRepository.findById(salesDataDto.getMenuId());
+                }
 
                 if (requestDto.getStartDate().equals(requestDto.getEndDate())){
                     if (endHour >= Integer.parseInt(salesDataDto.getHour()) && startHour <= Integer.parseInt(salesDataDto.getHour()) ){
