@@ -1,6 +1,7 @@
 package knu.knu2025scdpteam06backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import knu.knu2025scdpteam06backend.dto.store.StoreCreateRequestDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreResponseDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreUpdateRequestDto;
@@ -24,6 +25,11 @@ public class StoreController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<StoreResponseDto> getStore(
+            @Parameter(
+                    description = "사업자 ID",
+                    example = "1234567890",
+                    required = true
+            )
             @PathVariable String id) {
         StoreResponseDto store = storeService.getStoreByMbId(id);
         return ResponseEntity.ok(store);
@@ -45,6 +51,11 @@ public class StoreController {
     )
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateStorePartially(
+            @Parameter(
+                    description = "사업자 ID",
+                    example = "1234567890",
+                    required = true
+            )
             @PathVariable String id,
             @RequestBody StoreUpdateRequestDto dto) {
         storeService.updateStore(id, dto);

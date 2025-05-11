@@ -1,5 +1,7 @@
 package knu.knu2025scdpteam06backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import knu.knu2025scdpteam06backend.dto.Weather.WeatherResponseDto;
 import knu.knu2025scdpteam06backend.service.WeatherService;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +16,24 @@ public class WeatherController {
 
     private final WeatherService weatherService;
 
+    @Operation(
+            summary = "특정 매장의 하루 날씨 조회",
+            description = "ID와 날짜를 이용하여 날씨 정보(강수량, 체감 기온, 날씨)를 조회합니다."
+    )
     @GetMapping("/{id}")
     public WeatherResponseDto getWeatherData(
+            @Parameter(
+                    description = "사업자 ID",
+                    example = "1234567890",
+                    required = true
+            )
             @PathVariable String id,
+
+            @Parameter(
+                    description = "날짜",
+                    example = "2025-01-01T00:00:00",
+                    required = true
+            )
             @RequestParam LocalDateTime dateTime
     ){
         return weatherService.getWeatherByStoreIdAndDateTime(id, dateTime);
