@@ -49,16 +49,16 @@ public class StoreController {
             summary = "매장 정보 수정",
             description = "사업자번호, 매장명, 도로명주소, cluster를 변경할 수 있습니다. 바꾸길 원하는 것만 입력하여 바꿀 수 있습니다."
     )
-    @PatchMapping("/{id}")
+    @PatchMapping("/{store_id}")
     public ResponseEntity<Void> updateStorePartially(
             @Parameter(
-                    description = "사업자 ID",
+                    description = "Store ID",
                     example = "1234567890",
                     required = true
             )
-            @PathVariable String id,
+            @PathVariable Long store_id,
             @RequestBody StoreUpdateRequestDto dto) {
-        storeService.updateStore(id, dto);
+        storeService.updateStore(store_id, dto);
         return ResponseEntity.noContent().build(); // 204 No Content
     }
 
