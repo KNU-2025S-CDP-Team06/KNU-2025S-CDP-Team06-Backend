@@ -12,5 +12,6 @@ public class StoreUpdateRequestDto {
     private String latitude;
     private String longitude;
     private Integer cluster;
+    private String password;
 }
 

@@ -52,5 +52,6 @@ public class StoreService {
         if (dto.getLatitude() != null) store.setLatitude(dto.getLatitude());
         if (dto.getLongitude() != null) store.setLongitude(dto.getLongitude());
         if (dto.getCluster() != null) store.setCluster(dto.getCluster());
+        if (dto.getPassword() != null) store.setPassword(dto.getPassword());
     }
 }
