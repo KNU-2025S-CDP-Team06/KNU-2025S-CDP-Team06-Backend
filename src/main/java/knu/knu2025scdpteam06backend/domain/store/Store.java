@@ -28,4 +28,6 @@ public class Store {
 
     @Column(nullable = true)
     private Integer cluster;
+
+    private String password;
 }
