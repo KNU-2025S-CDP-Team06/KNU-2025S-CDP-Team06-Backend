@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface DailyDataRepository extends JpaRepository<DailyData, Long> {
-    List<DailyData> findByStoreAndDateTimeBetween(Store store, LocalDateTime start, LocalDateTime end);
+    List<DailyData> findByStoreIdAndDateTimeBetween(Long storeId, LocalDateTime start, LocalDateTime end);
 }

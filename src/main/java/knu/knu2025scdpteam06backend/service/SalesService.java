@@ -1,5 +1,7 @@
 package knu.knu2025scdpteam06backend.service;
 
+import knu.knu2025scdpteam06backend.domain.dailydata.DailyData;
+import knu.knu2025scdpteam06backend.domain.dailydata.DailyDataRepository;
 import knu.knu2025scdpteam06backend.domain.menu.Menu;
 import knu.knu2025scdpteam06backend.domain.menu.MenuRepository;
 import knu.knu2025scdpteam06backend.domain.sales.Sales;
@@ -27,51 +29,47 @@ public class SalesService {
     private final SalesRepository salesRepository;
     private final StoreRepository storeRepository;
     private final MenuRepository menuRepository;
+    private final DailyDataRepository dailyDataRepository;
     private final WebClientService webClientService;
 
     public List<SalesResponseDto> getSalesByStore(String mbId, SalesRequestDto requestDto) {
 
-        List<Sales>salesList = getSalesListByMbId(mbId, requestDto);
-
-        // 날짜별 그룹화
-        Map<String, List<Sales>> grouped = salesList.stream()
-                .collect(Collectors.groupingBy(s -> s.getDateTime().toLocalDate().toString()));
-
-        // 응답 변환
+        List<DailyData> dailyDataList = getDailyDataListByStoreId(mbId, requestDto);
         List<SalesResponseDto> result = new ArrayList<>();
-        for (String date : grouped.keySet()) {
-            List<Sales> salesOnDate = grouped.get(date);
 
-            int totalRevenue = 0;
-            int totalCount = 0;
-            List<SalesDataDto> dataList = new ArrayList<>();
-
-            for (Sales sale : salesOnDate) {
-                int count = sale.getCount();
-                int price = sale.getMenu().getPrice();
-
-                totalRevenue += price * count;
-                totalCount += count;
-
-                dataList.add(
-                        SalesDataDto.builder()
-                                .count(count)
-                                .dateTime(sale.getDateTime())
-                                .menu(MenuDto.builder()
-                                        .name(sale.getMenu().getName())
-                                        .image(sale.getMenu().getImage())
-                                        .price(price)
-                                        .build())
-                                .build()
-                );
+        for (DailyData dailyData : dailyDataList) {
+            if (dailyData.getTotalRevenue() == 0){
+                result.add(SalesResponseDto.builder()
+                        .date(dailyData.getDateTime())
+                        .totalRevenue(0)
+                        .totalCount(0)
+                        .salesData(new ArrayList<>())
+                        .build());
+            }
+            else{
+                List<Sales>salesList = salesRepository.findByDailyDataId(dailyData.getId());
+                List<SalesDataDto> dataList = new ArrayList<>();
+                for (Sales sale : salesList) {
+                    dataList.add(
+                            SalesDataDto.builder()
+                                    .count(sale.getCount())
+                                    .dateTime(sale.getDateTime())
+                                    .menu(MenuDto.builder()
+                                            .name(sale.getMenu().getName())
+                                            .image(sale.getMenu().getImage())
+                                            .price(sale.getMenu().getPrice())
+                                            .build())
+                                    .build()
+                    );
+                }
+                result.add(SalesResponseDto.builder()
+                        .date(dailyData.getDateTime())
+                        .totalRevenue(dailyData.getTotalRevenue())
+                        .totalCount(dailyData.getTotalCount())
+                        .salesData(dataList)
+                        .build());
             }
 
-            result.add(SalesResponseDto.builder()
-                    .date(LocalDate.parse(date).atStartOfDay())
-                    .totalRevenue(totalRevenue)
-                    .totalCount(totalCount)
-                    .salesData(dataList)
-                    .build());
         }
 
         // 실시간 데이터 받아오기
@@ -79,108 +77,118 @@ public class SalesService {
         if (requestDto.getEndDate().toLocalDate().equals(today) || requestDto.getEndDate().toLocalDate().isAfter(today)){
 
             RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(mbId, today.toString());
-            if (realTimeSalesDto == null) return Collections.emptyList();
-
-            int totalRevenue = 0;
-            int totalCount = 0;
-            List<SalesDataDto> dataList = new ArrayList<>();
-            int startHour = requestDto.getStartHour() != null ? requestDto.getStartHour() : 0;
-            int endHour = requestDto.getEndHour() != null ? requestDto.getEndHour() : 23;
-
-            for (RealTimeSalesDto.SalesDataDto salesDataDto : realTimeSalesDto.getData()) {
-
-                Optional<Menu> menu = menuRepository.findById(salesDataDto.getMenuId());
-                if (menu.isEmpty()) {
-                    Long id = salesDataDto.getMenuId();
-                    String name = salesDataDto.getMenuName();
-                    Integer revenue = salesDataDto.getRevenue();
-                    Integer count = salesDataDto.getCount();
-                    Integer price = revenue / count;
-
-                    menuRepository.save(Menu.builder().
-                            id(id).
-                            name(name).
-                            price(price).
-                            build());
-                    menu = menuRepository.findById(salesDataDto.getMenuId());
-                }
-
-                if (requestDto.getStartDate().equals(requestDto.getEndDate())){
-                    if (endHour >= Integer.parseInt(salesDataDto.getHour()) && startHour <= Integer.parseInt(salesDataDto.getHour()) ){
-                        totalRevenue += salesDataDto.getCount() * menu.get().getPrice();
-                        totalCount += salesDataDto.getCount();
-                        dataList.add(
-                                SalesDataDto.builder()
-                                        .count(salesDataDto.getCount())
-                                        .dateTime(LocalDate.parse(salesDataDto.getDate()).atStartOfDay().plusHours(Integer.parseInt(salesDataDto.getHour())))
-                                        .menu(MenuDto.builder()
-                                                .name(menu.get().getName())
-                                                .image(menu.get().getImage())
-                                                .price(menu.get().getPrice())
-                                                .build())
-                                        .build()
-                        );
-                    }
-                }
-                else {
-                    if (endHour >= Integer.parseInt(salesDataDto.getHour())){
-                        totalRevenue += salesDataDto.getCount() * menu.get().getPrice();
-                        totalCount += salesDataDto.getCount();
-                        dataList.add(
-                                SalesDataDto.builder()
-                                        .count(salesDataDto.getCount())
-                                        .dateTime(LocalDate.parse(salesDataDto.getDate()).atStartOfDay().plusHours(Integer.parseInt(salesDataDto.getHour())))
-                                        .menu(MenuDto.builder()
-                                                .name(menu.get().getName())
-                                                .image(menu.get().getImage())
-                                                .price(menu.get().getPrice())
-                                                .build())
-                                        .build()
-                        );
-                    }
-                }
+            if (realTimeSalesDto.getTotalRevenue() == 0){
+                result.add(SalesResponseDto.builder()
+                        .date(today.atStartOfDay())
+                        .totalRevenue(0)
+                        .totalCount(0)
+                        .salesData(new ArrayList<>())
+                        .build());
             }
+            else{
+                int totalRevenue = 0;
+                int totalCount = 0;
+                List<SalesDataDto> dataList = new ArrayList<>();
+                int startHour = requestDto.getStartHour() != null ? requestDto.getStartHour() : 0;
+                int endHour = requestDto.getEndHour() != null ? requestDto.getEndHour() : 23;
 
-            result.add(SalesResponseDto.builder()
-                    .date(today.atStartOfDay())
-                    .totalRevenue(totalRevenue)
-                    .totalCount(totalCount)
-                    .salesData(dataList)
-                    .build());
+                for (RealTimeSalesDto.SalesDataDto salesDataDto : realTimeSalesDto.getData()) {
+
+                    Optional<Menu> menu = menuRepository.findById(salesDataDto.getMenuId());
+                    if (menu.isEmpty()) {
+                        Long id = salesDataDto.getMenuId();
+                        String name = salesDataDto.getMenuName();
+                        Integer revenue = salesDataDto.getRevenue();
+                        Integer count = salesDataDto.getCount();
+                        Integer price = revenue / count;
+
+                        menuRepository.save(Menu.builder().
+                                id(id).
+                                name(name).
+                                price(price).
+                                build());
+                        menu = menuRepository.findById(salesDataDto.getMenuId());
+                    }
+
+                    if (requestDto.getStartDate().equals(requestDto.getEndDate())){
+                        if (endHour >= Integer.parseInt(salesDataDto.getHour()) && startHour <= Integer.parseInt(salesDataDto.getHour()) ){
+                            totalRevenue += salesDataDto.getCount() * menu.get().getPrice();
+                            totalCount += salesDataDto.getCount();
+                            dataList.add(
+                                    SalesDataDto.builder()
+                                            .count(salesDataDto.getCount())
+                                            .dateTime(LocalDate.parse(salesDataDto.getDate()).atStartOfDay().plusHours(Integer.parseInt(salesDataDto.getHour())))
+                                            .menu(MenuDto.builder()
+                                                    .name(menu.get().getName())
+                                                    .image(menu.get().getImage())
+                                                    .price(menu.get().getPrice())
+                                                    .build())
+                                            .build()
+                            );
+                        }
+                    }
+                    else {
+                        if (endHour >= Integer.parseInt(salesDataDto.getHour())){
+                            totalRevenue += salesDataDto.getCount() * menu.get().getPrice();
+                            totalCount += salesDataDto.getCount();
+                            dataList.add(
+                                    SalesDataDto.builder()
+                                            .count(salesDataDto.getCount())
+                                            .dateTime(LocalDate.parse(salesDataDto.getDate()).atStartOfDay().plusHours(Integer.parseInt(salesDataDto.getHour())))
+                                            .menu(MenuDto.builder()
+                                                    .name(menu.get().getName())
+                                                    .image(menu.get().getImage())
+                                                    .price(menu.get().getPrice())
+                                                    .build())
+                                            .build()
+                            );
+                        }
+                    }
+                }
+
+                result.add(SalesResponseDto.builder()
+                        .date(today.atStartOfDay())
+                        .totalRevenue(totalRevenue)
+                        .totalCount(totalCount)
+                        .salesData(dataList)
+                        .build());
+            }
         }
-
         // 날짜 순 정렬
         result.sort(Comparator.comparing(SalesResponseDto::getDate));
         return result;
     }
 
     public TotalSalesResponseDto getTotalSalesByStore(String mbId, SalesRequestDto requestDto) {
-        List<Sales>salesList = getSalesListByMbId(mbId, requestDto);getSalesListByMbId(mbId, requestDto);
+        List<DailyData> dailyDataList = getDailyDataListByStoreId(mbId, requestDto);
 
         int totalRevenue = 0;
         int totalCount = 0;
         List<TotalSalesResponseDto.SalesDataDto> salesData = new ArrayList<>();
 
-        for (Sales sale : salesList) {
-            int count = sale.getCount();
-            int price = sale.getMenu().getPrice();
+        for (DailyData dailyData : dailyDataList) {
 
-            totalRevenue += price * count;
-            totalCount += count;
+            totalRevenue += dailyData.getTotalRevenue();
+            totalCount += dailyData.getTotalCount();
 
-            salesData.add(
+            List<Sales>salesList = salesRepository.findByDailyDataId(dailyData.getId());
+            List<SalesDataDto> dataList = new ArrayList<>();
+            for (Sales sale : salesList) {
+                salesData.add(
                     TotalSalesResponseDto.SalesDataDto.builder()
-                            .count(count)
-                            .dateTime(sale.getDateTime())
-                            .menu(
-                                    TotalSalesResponseDto.SalesDataDto.MenuDto.builder()
-                                            .name(sale.getMenu().getName())
-                                            .image(sale.getMenu().getImage())
-                                            .price(price)
-                                            .build()
-                            )
-                            .build()
-            );
+                        .count(sale.getCount())
+                        .dateTime(sale.getDateTime())
+                        .menu(
+                            TotalSalesResponseDto.SalesDataDto.MenuDto.builder()
+                                    .name(sale.getMenu().getName())
+                                    .image(sale.getMenu().getImage())
+                                    .price(sale.getMenu().getPrice())
+                                    .build()
+                        )
+                        .build()
+                );
+            }
+
         }
 
         return TotalSalesResponseDto.builder()
@@ -190,7 +198,7 @@ public class SalesService {
                 .build();
     }
 
-    private List<Sales> getSalesListByMbId(String mbId, SalesRequestDto requestDto) {
+    private List<DailyData> getDailyDataListByStoreId(String mbId, SalesRequestDto requestDto) {
         Store store = storeRepository.findByMbId(mbId)
                 .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + mbId));
 
@@ -200,10 +208,10 @@ public class SalesService {
         LocalDateTime startDateTime = requestDto.getStartDate().plusHours(startHour);
         LocalDateTime endDateTime = requestDto.getEndDate().plusHours(endHour);
 
-        List<Sales> salesList = salesRepository.findByStoreIdAndDateTimeBetween(
+        List<DailyData> dailyDataList = dailyDataRepository.findByStoreIdAndDateTimeBetween(
                 store.getId(), startDateTime, endDateTime
         );
 
-        return salesList;
+        return dailyDataList;
     }
 }
