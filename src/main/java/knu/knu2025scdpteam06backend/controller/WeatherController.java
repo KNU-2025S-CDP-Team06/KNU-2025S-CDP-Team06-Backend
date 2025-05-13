@@ -22,11 +22,7 @@ public class WeatherController {
     )
     @GetMapping("/{id}")
     public WeatherResponseDto getWeatherData(
-            @Parameter(
-                    description = "사업자 ID",
-                    example = "1234567890",
-                    required = true
-            )
+
             @PathVariable String id,
 
             @Parameter(

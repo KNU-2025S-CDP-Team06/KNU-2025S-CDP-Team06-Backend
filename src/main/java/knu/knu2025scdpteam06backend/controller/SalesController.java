@@ -26,11 +26,6 @@ public class SalesController {
     @GetMapping("/{id}")
     public List<SalesResponseDto> getSalesData(
 
-            @Parameter(
-                    description = "사업자 ID",
-                    example = "1234567890",
-                    required = true
-            )
             @PathVariable String id,
             @Parameter(
                     description = "날짜",
@@ -63,11 +58,7 @@ public class SalesController {
     )
     @GetMapping("/total/{id}")
     public TotalSalesResponseDto getTotalSales(
-            @Parameter(
-                    description = "사업자 ID",
-                    example = "1234567890",
-                    required = true
-            )
+
             @PathVariable String id,
             @Parameter(
                     description = "날짜",

@@ -24,11 +24,7 @@ public class ForecastController {
     )
     @GetMapping("/forecast/{id}")
     public ForecastResponseDto getForecast(
-            @Parameter(
-                    description = "사업자 ID",
-                    example = "1234567890",
-                    required = true
-            )
+
             @PathVariable String id,
 
             @Parameter(

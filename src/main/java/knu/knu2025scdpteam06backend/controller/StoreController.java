@@ -6,18 +6,16 @@ import knu.knu2025scdpteam06backend.dto.store.StoreCreateRequestDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreResponseDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreUpdateRequestDto;
 import knu.knu2025scdpteam06backend.service.StoreService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/store")
+@RequiredArgsConstructor
 public class StoreController {
 
     private final StoreService storeService;
-
-    public StoreController(StoreService storeService) {
-        this.storeService = storeService;
-    }
 
     @Operation(
             summary = "특정 ID의 매장 정보 조회",
@@ -25,12 +23,8 @@ public class StoreController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<StoreResponseDto> getStore(
-            @Parameter(
-                    description = "사업자 ID",
-                    example = "1234567890",
-                    required = true
-            )
             @PathVariable String id) {
+
         StoreResponseDto store = storeService.getStoreByMbId(id);
         return ResponseEntity.ok(store);
     }
@@ -51,11 +45,7 @@ public class StoreController {
     )
     @PatchMapping("/{store_id}")
     public ResponseEntity<Void> updateStorePartially(
-            @Parameter(
-                    description = "Store ID",
-                    example = "1234567890",
-                    required = true
-            )
+
             @PathVariable Long store_id,
             @RequestBody StoreUpdateRequestDto dto) {
         storeService.updateStore(store_id, dto);
