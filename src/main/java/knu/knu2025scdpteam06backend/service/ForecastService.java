@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +37,7 @@ public class ForecastService {
 
         Forecast forecast = Forecast.builder().
                 store(store).
-                dateTime(LocalDateTime.now()).
+                dateTime(LocalDateTime.now().plusDays(1).with(LocalTime.MIDNIGHT)).
                 prophetForecast(forecastCreateRequestDto.getProphetForecast()).
                 xgboostForecast(forecastCreateRequestDto.getXgboostForecast()).
                 build();
