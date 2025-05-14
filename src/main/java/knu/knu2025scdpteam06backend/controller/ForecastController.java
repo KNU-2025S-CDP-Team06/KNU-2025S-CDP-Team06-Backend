@@ -2,13 +2,12 @@ package knu.knu2025scdpteam06backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import knu.knu2025scdpteam06backend.dto.forecast.ForecastCreateRequestDto;
 import knu.knu2025scdpteam06backend.dto.forecast.ForecastResponseDto;
 import knu.knu2025scdpteam06backend.service.ForecastService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -35,6 +34,13 @@ public class ForecastController {
             @RequestParam LocalDateTime dateTime
     ) {
         return forecastService.getForecastByStore(id, dateTime);
+    }
+
+    @PostMapping("/forecast/{storeId}")
+    public ResponseEntity<Void> addForecast(@PathVariable Long storeId,
+                            @RequestBody ForecastCreateRequestDto forecastCreateRequestDto) {
+        forecastService.addForecast(storeId, forecastCreateRequestDto);
+        return ResponseEntity.noContent().build(); // 204 No Content
     }
 
 }

@@ -4,6 +4,7 @@ import knu.knu2025scdpteam06backend.domain.forecast.Forecast;
 import knu.knu2025scdpteam06backend.domain.forecast.ForecastRepository;
 import knu.knu2025scdpteam06backend.domain.store.Store;
 import knu.knu2025scdpteam06backend.domain.store.StoreRepository;
+import knu.knu2025scdpteam06backend.dto.forecast.ForecastCreateRequestDto;
 import knu.knu2025scdpteam06backend.dto.forecast.ForecastResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,5 +28,19 @@ public class ForecastService {
                 .xgboostForecast(forecast.getXgboostForecast())
                 .build();
 
+    }
+
+    public void addForecast(Long storeId, ForecastCreateRequestDto forecastCreateRequestDto){
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + storeId));
+
+        Forecast forecast = Forecast.builder().
+                store(store).
+                dateTime(LocalDateTime.now()).
+                prophetForecast(forecastCreateRequestDto.getProphetForecast()).
+                xgboostForecast(forecastCreateRequestDto.getXgboostForecast()).
+                build();
+
+        forecastRepository.save(forecast);
     }
 }
