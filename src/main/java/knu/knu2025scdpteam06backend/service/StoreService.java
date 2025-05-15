@@ -15,12 +15,6 @@ public class StoreService {
 
     private final StoreRepository storeRepository;
 
-    public StoreResponseDto getStoreById(Long id) {
-        Store store = storeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 매장이 존재하지 않습니다. id=" + id));
-        return new StoreResponseDto(store.getId(), store.getMbId(), store.getName(), store.getAddress());
-    }
-
     public StoreResponseDto getStoreByMbId(String id) {
         Store store = storeRepository.findByMbId(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 매장이 존재하지 않습니다. id=" + id));

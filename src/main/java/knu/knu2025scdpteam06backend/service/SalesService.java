@@ -47,9 +47,32 @@ public class SalesService {
                         .build());
             }
             else{
-                List<Sales>salesList = salesRepository.findByDailyDataId(dailyData.getId());
+                int totalRevenue = 0;
+                int totalCount = 0;
+                LocalDateTime startDateTime = requestDto.getStartDate();
+                LocalDateTime endDateTime = requestDto.getEndDate();
+
+                if (dailyData.getDateTime().isEqual(requestDto.getStartDate()) && dailyData.getDateTime().isEqual(requestDto.getEndDate())){
+                    int startHour = requestDto.getStartHour() != null ? requestDto.getStartHour() : 0;
+                    int endHour = requestDto.getEndHour() != null ? requestDto.getEndHour() : 23;
+                    startDateTime = startDateTime.plusHours(startHour);
+                    endDateTime = endDateTime.plusHours(endHour);
+                }
+                else if (dailyData.getDateTime().isEqual(requestDto.getStartDate())){
+                    int startHour = requestDto.getStartHour() != null ? requestDto.getStartHour() : 0;
+                    startDateTime = startDateTime.plusHours(startHour);
+                }
+                else if (dailyData.getDateTime().isEqual(requestDto.getEndDate())) {
+                    int endHour = requestDto.getEndHour() != null ? requestDto.getEndHour() : 23;
+                    endDateTime = endDateTime.plusHours(endHour);
+                }
+
+                List<Sales>salesList = salesRepository.findByDailyDataIdAndDateTimeBetween(
+                        dailyData.getId(), startDateTime, endDateTime);
                 List<SalesDataDto> dataList = new ArrayList<>();
                 for (Sales sale : salesList) {
+                    totalRevenue += sale.getCount() * sale.getMenu().getPrice();
+                    totalCount += sale.getCount();
                     dataList.add(
                             SalesDataDto.builder()
                                     .count(sale.getCount())
@@ -64,8 +87,8 @@ public class SalesService {
                 }
                 result.add(SalesResponseDto.builder()
                         .date(dailyData.getDateTime())
-                        .totalRevenue(dailyData.getTotalRevenue())
-                        .totalCount(dailyData.getTotalCount())
+                        .totalRevenue(totalRevenue)
+                        .totalCount(totalCount)
                         .salesData(dataList)
                         .build());
             }
@@ -168,12 +191,30 @@ public class SalesService {
 
         for (DailyData dailyData : dailyDataList) {
 
-            totalRevenue += dailyData.getTotalRevenue();
-            totalCount += dailyData.getTotalCount();
+            LocalDateTime startDateTime = requestDto.getStartDate();
+            LocalDateTime endDateTime = requestDto.getEndDate();
 
-            List<Sales>salesList = salesRepository.findByDailyDataId(dailyData.getId());
-            List<SalesDataDto> dataList = new ArrayList<>();
+            if (dailyData.getDateTime().isEqual(requestDto.getStartDate()) && dailyData.getDateTime().isEqual(requestDto.getEndDate())){
+                int startHour = requestDto.getStartHour() != null ? requestDto.getStartHour() : 0;
+                int endHour = requestDto.getEndHour() != null ? requestDto.getEndHour() : 23;
+                startDateTime = startDateTime.plusHours(startHour);
+                endDateTime = endDateTime.plusHours(endHour);
+            }
+            else if (dailyData.getDateTime().isEqual(requestDto.getStartDate())){
+                int startHour = requestDto.getStartHour() != null ? requestDto.getStartHour() : 0;
+                startDateTime = startDateTime.plusHours(startHour);
+            }
+            else if (dailyData.getDateTime().isEqual(requestDto.getEndDate())) {
+                int endHour = requestDto.getEndHour() != null ? requestDto.getEndHour() : 23;
+                endDateTime = endDateTime.plusHours(endHour);
+            }
+
+            List<Sales>salesList = salesRepository.findByDailyDataIdAndDateTimeBetween(
+                    dailyData.getId(), startDateTime, endDateTime);
+
             for (Sales sale : salesList) {
+                totalRevenue += sale.getCount() * sale.getMenu().getPrice();
+                totalCount += sale.getCount();
                 salesData.add(
                     TotalSalesResponseDto.SalesDataDto.builder()
                         .count(sale.getCount())
@@ -202,15 +243,7 @@ public class SalesService {
         Store store = storeRepository.findByMbId(mbId)
                 .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + mbId));
 
-        int startHour = requestDto.getStartHour() != null ? requestDto.getStartHour() : 0;
-        int endHour = requestDto.getEndHour() != null ? requestDto.getEndHour() : 23;
-
-        LocalDateTime startDateTime = requestDto.getStartDate().plusHours(startHour);
-        LocalDateTime endDateTime = requestDto.getEndDate().plusHours(endHour);
-
-        List<DailyData> dailyDataList = dailyDataRepository.findByStoreIdAndDateTimeBetween(
-                store.getId(), startDateTime, endDateTime
-        );
+        List<DailyData> dailyDataList = dailyDataRepository.findByStoreIdAndDateTimeBetween(store.getId(), requestDto.getStartDate(), requestDto.getEndDate());
 
         return dailyDataList;
     }
