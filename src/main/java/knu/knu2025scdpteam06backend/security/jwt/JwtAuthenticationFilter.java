@@ -1,41 +1,34 @@
 package knu.knu2025scdpteam06backend.security.jwt;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
 
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends GenericFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
-            throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) req;
-        String token = resolveToken(request);
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String token = jwtTokenProvider.resolveToken(request);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            String username = jwtTokenProvider.getUsername(token);
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            Authentication authentication = jwtTokenProvider.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            Claims claims = jwtTokenProvider.getClaims(token);
+            request.setAttribute("store_id", claims.get("store_id", Long.class));
         }
 
-        chain.doFilter(req, res);
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
-        }
-        return null;
+        filterChain.doFilter(request, response);
     }
 }

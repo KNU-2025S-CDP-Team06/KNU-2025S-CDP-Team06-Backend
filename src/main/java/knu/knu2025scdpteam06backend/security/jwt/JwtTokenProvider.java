@@ -3,12 +3,15 @@ package knu.knu2025scdpteam06backend.security.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtTokenProvider {
@@ -26,23 +29,26 @@ public class JwtTokenProvider {
     }
 
 
-    public String generateToken(String username) {
+    public String generateToken(String mbId, Long storeId) {
+        Claims claims = Jwts.claims().setSubject(mbId);
+        claims.put("store_id", storeId);
+
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + expiration);
+        Date validity = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .setSubject(username)
+                .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(expiry)
+                .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String getUsername(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+    public Authentication getAuthentication(String token) {
+        Claims claims = getClaims(token);
+        String mbId = claims.getSubject();
+
+        return new UsernamePasswordAuthenticationToken(mbId, "", List.of());
     }
 
     public boolean validateToken(String token) {
@@ -52,5 +58,15 @@ public class JwtTokenProvider {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        return (bearerToken != null && bearerToken.startsWith("Bearer ")) ?
+                bearerToken.substring(7) : null;
+    }
+
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 }
