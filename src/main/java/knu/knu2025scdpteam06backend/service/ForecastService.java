@@ -19,9 +19,9 @@ public class ForecastService {
     private final ForecastRepository forecastRepository;
     private final StoreRepository storeRepository;
 
-    public ForecastResponseDto getForecastByStore(String mbId, LocalDateTime dateTime) {
-        Store store = storeRepository.findByMbId(mbId)
-                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + mbId));
+    public ForecastResponseDto getForecastByStoreId(Long storeId, LocalDateTime dateTime) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + storeId));
 
         Forecast forecast = forecastRepository.getForecastsByStoreIdAndDateTime(store.getId(), dateTime);
         return ForecastResponseDto.builder()
