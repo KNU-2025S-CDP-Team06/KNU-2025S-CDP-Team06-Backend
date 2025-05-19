@@ -2,6 +2,7 @@ package knu.knu2025scdpteam06backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletRequest;
 import knu.knu2025scdpteam06backend.dto.store.StoreCreateRequestDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreResponseDto;
 import knu.knu2025scdpteam06backend.dto.store.StoreUpdateRequestDto;
@@ -21,11 +22,12 @@ public class StoreController {
             summary = "특정 ID의 매장 정보 조회",
             description = "ID를 이용하여 매장의 상세 정보를 조회합니다."
     )
-    @GetMapping("/{id}")
+    @GetMapping
     public ResponseEntity<StoreResponseDto> getStore(
-            @PathVariable String id) {
-
-        StoreResponseDto store = storeService.getStoreByMbId(id);
+            HttpServletRequest request
+    ) {
+        Long storeId = (Long) request.getAttribute("store_id");
+        StoreResponseDto store = storeService.getStoreById(storeId);
         return ResponseEntity.ok(store);
     }
 
