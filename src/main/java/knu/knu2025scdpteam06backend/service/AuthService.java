@@ -1,5 +1,6 @@
 package knu.knu2025scdpteam06backend.service;
 
+import knu.knu2025scdpteam06backend.domain.store.Role;
 import knu.knu2025scdpteam06backend.domain.store.Store;
 import knu.knu2025scdpteam06backend.domain.store.StoreRepository;
 import knu.knu2025scdpteam06backend.dto.auth.AuthRequestDto;
@@ -31,5 +32,14 @@ public class AuthService {
                 .filter(s -> s.getPassword().equals(password))
                 .orElse(null);
         return store != null ? store.getId() : null;
+    }
+
+    public Long validateAndGetAdminId(String mbId, String password) {
+
+        return storeRepository.findByMbId(mbId)
+                .filter(s -> s.getPassword().equals(password))
+                .filter(s -> Role.ADMIN.equals(s.getRole()))  // 안전한 enum 비교
+                .map(Store::getId)
+                .orElse(null);
     }
 }

@@ -33,4 +33,21 @@ public class AuthController {
         String token = jwtTokenProvider.generateToken(request.getMbId(), storeId);
         return ResponseEntity.ok(new AuthResponseDto(token));
     }
+
+    @PostMapping("/admin/login")
+    public ResponseEntity<AuthResponseDto> adminLogin(@RequestBody AuthRequestDto request) {
+
+        if (!request.getMbId().matches("\\d{10}") || !request.getPassword().matches("\\d{7}")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long storeId = authService.validateAndGetAdminId(request.getMbId(), request.getPassword());
+        if (storeId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // JWT 생성 (storeId 포함)
+        String token = jwtTokenProvider.generateToken(request.getMbId(), storeId);
+        return ResponseEntity.ok(new AuthResponseDto(token));
+    }
 }

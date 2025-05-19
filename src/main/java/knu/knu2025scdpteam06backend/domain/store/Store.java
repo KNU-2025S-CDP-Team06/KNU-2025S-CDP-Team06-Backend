@@ -30,4 +30,7 @@ public class Store {
     private Integer cluster;
 
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }
