@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 @RestController
+@RequestMapping("/forecast")
 @RequiredArgsConstructor
 public class ForecastController {
 
@@ -23,7 +24,7 @@ public class ForecastController {
             summary = "특정 매장의 매출 예측값 조회",
             description = "ID와 날짜를 이용하여 매출 예측값을 조회합니다."
     )
-    @GetMapping("/forecast")
+    @GetMapping
     public ForecastResponseDto getForecast(
             HttpServletRequest request,
             @Parameter(
@@ -41,7 +42,7 @@ public class ForecastController {
             summary = "특정 매장의 내일 매출 예측값 추가",
             description = "Store Id를 이용하여 매출 예측값을 추가합니다."
     )
-    @PostMapping("/forecast/{storeId}")
+    @PostMapping("/{storeId}")
     public ResponseEntity<Void> addForecast(@PathVariable Long storeId,
                             @RequestBody ForecastCreateRequestDto forecastCreateRequestDto) {
         forecastService.addForecast(storeId, forecastCreateRequestDto);
