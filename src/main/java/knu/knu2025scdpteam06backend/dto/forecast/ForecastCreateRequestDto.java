@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class ForecastCreateRequestDto {
 
+    private Long storeId;
     private Integer prophetForecast;
     private Double xgboostForecast;
 

@@ -42,10 +42,10 @@ public class ForecastController {
             summary = "특정 매장의 내일 매출 예측값 추가",
             description = "Store Id를 이용하여 매출 예측값을 추가합니다."
     )
-    @PostMapping("/{storeId}")
-    public ResponseEntity<Void> addForecast(@PathVariable Long storeId,
+    @PostMapping
+    public ResponseEntity<Void> addForecast(
                             @RequestBody ForecastCreateRequestDto forecastCreateRequestDto) {
-        forecastService.addForecast(storeId, forecastCreateRequestDto);
+        forecastService.addForecast(forecastCreateRequestDto);
         return ResponseEntity.noContent().build(); // 204 No Content
     }
 

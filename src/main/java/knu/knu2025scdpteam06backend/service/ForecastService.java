@@ -31,9 +31,9 @@ public class ForecastService {
 
     }
 
-    public void addForecast(Long storeId, ForecastCreateRequestDto forecastCreateRequestDto){
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + storeId));
+    public void addForecast(ForecastCreateRequestDto forecastCreateRequestDto){
+        Store store = storeRepository.findById(forecastCreateRequestDto.getStoreId())
+                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + forecastCreateRequestDto.getStoreId()));
 
         Forecast forecast = Forecast.builder().
                 store(store).
