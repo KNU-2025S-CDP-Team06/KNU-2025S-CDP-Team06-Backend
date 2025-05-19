@@ -32,9 +32,9 @@ public class SalesService {
     private final DailyDataRepository dailyDataRepository;
     private final WebClientService webClientService;
 
-    public List<SalesResponseDto> getSalesByStore(String mbId, SalesRequestDto requestDto) {
+    public List<SalesResponseDto> getSalesByStore(Long storeId, SalesRequestDto requestDto) {
 
-        List<DailyData> dailyDataList = getDailyDataListByStoreId(mbId, requestDto);
+        List<DailyData> dailyDataList = getDailyDataListByStoreId(storeId, requestDto);
         List<SalesResponseDto> result = new ArrayList<>();
 
         for (DailyData dailyData : dailyDataList) {
@@ -99,7 +99,7 @@ public class SalesService {
         LocalDate today = LocalDate.now();
         if (requestDto.getEndDate().toLocalDate().equals(today) || requestDto.getEndDate().toLocalDate().isAfter(today)){
 
-            RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(mbId, today.toString());
+            RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(storeId, today.toString());
             if (realTimeSalesDto.getTotalRevenue() == 0){
                 result.add(SalesResponseDto.builder()
                         .date(today.atStartOfDay())
@@ -182,8 +182,8 @@ public class SalesService {
         return result;
     }
 
-    public TotalSalesResponseDto getTotalSalesByStore(String mbId, SalesRequestDto requestDto) {
-        List<DailyData> dailyDataList = getDailyDataListByStoreId(mbId, requestDto);
+    public TotalSalesResponseDto getTotalSalesByStore(Long storeId, SalesRequestDto requestDto) {
+        List<DailyData> dailyDataList = getDailyDataListByStoreId(storeId, requestDto);
 
         int totalRevenue = 0;
         int totalCount = 0;
@@ -239,9 +239,9 @@ public class SalesService {
                 .build();
     }
 
-    private List<DailyData> getDailyDataListByStoreId(String mbId, SalesRequestDto requestDto) {
-        Store store = storeRepository.findByMbId(mbId)
-                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + mbId));
+    private List<DailyData> getDailyDataListByStoreId(Long storeId, SalesRequestDto requestDto) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + storeId));
 
         List<DailyData> dailyDataList = dailyDataRepository.findByStoreIdAndDateTimeBetween(store.getId(), requestDto.getStartDate(), requestDto.getEndDate());
 
