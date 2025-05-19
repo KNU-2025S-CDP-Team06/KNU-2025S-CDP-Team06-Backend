@@ -17,8 +17,8 @@ public class WeatherService {
     private final WeatherRepository weatherRepository;
     private final StoreRepository storeRepository;
 
-    public WeatherResponseDto getWeatherByStoreIdAndDateTime(String mbId, LocalDateTime dateTime){
-        Optional<Store> store = storeRepository.findByMbId(mbId);
+    public WeatherResponseDto getWeatherByStoreIdAndDateTime(Long storeId, LocalDateTime dateTime){
+        Optional<Store> store = storeRepository.findById(storeId);
 
         Weather weather =  weatherRepository.findByStoreIdAndDateTime(store.get().getId(), dateTime);
 
