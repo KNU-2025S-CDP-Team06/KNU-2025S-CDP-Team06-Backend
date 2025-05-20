@@ -37,7 +37,7 @@ public class AuthController {
     @PostMapping("/admin/login")
     public ResponseEntity<AuthResponseDto> adminLogin(@RequestBody AuthRequestDto request) {
 
-        if (!request.getMbId().matches("\\d{10}") || !request.getPassword().matches("\\d{7}")) {
+        if (!request.getMbId().matches(".{10}") || !request.getPassword().matches(".{7}")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
