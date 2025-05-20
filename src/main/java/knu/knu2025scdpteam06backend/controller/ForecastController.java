@@ -7,11 +7,11 @@ import knu.knu2025scdpteam06backend.dto.forecast.ForecastCreateRequestDto;
 import knu.knu2025scdpteam06backend.dto.forecast.ForecastResponseDto;
 import knu.knu2025scdpteam06backend.service.ForecastService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/forecast")
@@ -25,17 +25,18 @@ public class ForecastController {
             description = "ID와 날짜를 이용하여 매출 예측값을 조회합니다."
     )
     @GetMapping
-    public ForecastResponseDto getForecast(
+    public List<ForecastResponseDto> getForecast(
             HttpServletRequest request,
             @Parameter(
                     description = "날짜",
                     example = "2025-01-01T00:00:00",
                     required = true
             )
-            @RequestParam LocalDateTime dateTime
+            @RequestParam LocalDateTime startDate,
+            @RequestParam LocalDateTime endDate
     ) {
         Long storeId = (Long) request.getAttribute("store_id");
-        return forecastService.getForecastByStoreId(storeId, dateTime);
+        return forecastService.getForecastByStoreId(storeId, startDate, endDate);
     }
 
     @Operation(
