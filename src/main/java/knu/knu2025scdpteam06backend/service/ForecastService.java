@@ -10,10 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,17 +42,25 @@ public class ForecastService {
 
     }
 
-    public void addForecast(ForecastCreateRequestDto forecastCreateRequestDto){
-        Store store = storeRepository.findById(forecastCreateRequestDto.getStoreId())
-                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + forecastCreateRequestDto.getStoreId()));
+    public void addForecast(ForecastCreateRequestDto dto) {
+        Store store = storeRepository.findById(dto.getStoreId())
+                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + dto.getStoreId()));
 
-        Forecast forecast = Forecast.builder().
-                store(store).
-                dateTime(forecastCreateRequestDto.getDateTime()).
-                prophetForecast(forecastCreateRequestDto.getProphetForecast()).
-                xgboostForecast(forecastCreateRequestDto.getXgboostForecast()).
-                build();
+        Optional<Forecast> existingForecast = forecastRepository
+                .findByStoreIdAndDateTime(dto.getStoreId(), dto.getDateTime());
 
-        forecastRepository.save(forecast);
+        if (existingForecast.isPresent()) {
+            Forecast forecast = existingForecast.get();
+            forecast.setProphetForecast(dto.getProphetForecast());
+            forecast.setXgboostForecast(dto.getXgboostForecast());
+            forecastRepository.save(forecast); // 업데이트
+        } else {
+            Forecast newForecast = new Forecast();
+            newForecast.setStore(store);
+            newForecast.setDateTime(dto.getDateTime());
+            newForecast.setProphetForecast(dto.getProphetForecast());
+            newForecast.setXgboostForecast(dto.getXgboostForecast());
+            forecastRepository.save(newForecast); // 새로 저장
+        }
     }
 }
