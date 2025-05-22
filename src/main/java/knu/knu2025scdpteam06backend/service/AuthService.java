@@ -7,9 +7,8 @@ import knu.knu2025scdpteam06backend.dto.auth.AuthRequestDto;
 import knu.knu2025scdpteam06backend.dto.auth.AuthResponseDto;
 import knu.knu2025scdpteam06backend.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,21 +16,23 @@ public class AuthService {
 
     private final StoreRepository storeRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthResponseDto login(AuthRequestDto dto) {
-        Store store = storeRepository.findByMbId(dto.getMbId())
-                .orElseThrow(() -> new RuntimeException("해당 매장이 존재하지 않습니다"));
+        Long storeId = validateAndGetStoreId(dto.getMbId(), dto.getPassword());
+        if (storeId == null) {
+            throw new RuntimeException("아이디 또는 비밀번호가 일치하지 않습니다");
+        }
 
-        String token = jwtTokenProvider.generateToken(store.getMbId(), store.getId());
-
+        String token = jwtTokenProvider.generateToken(dto.getMbId(), storeId);
         return new AuthResponseDto(token);
     }
 
     public Long validateAndGetStoreId(String mbId, String password) {
-        Store store = storeRepository.findByMbId(mbId)
-                .filter(s -> s.getPassword().equals(password))
+        return storeRepository.findByMbId(mbId)
+                .filter(store -> passwordEncoder.matches(password, store.getPassword()))
+                .map(Store::getId)
                 .orElse(null);
-        return store != null ? store.getId() : null;
     }
 
     public Long validateAndGetAdminId(String mbId, String password) {
