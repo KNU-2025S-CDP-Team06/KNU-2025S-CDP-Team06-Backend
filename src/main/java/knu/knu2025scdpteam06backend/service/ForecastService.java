@@ -22,24 +22,26 @@ public class ForecastService {
     private final ForecastRepository forecastRepository;
     private final StoreRepository storeRepository;
 
-    public List<ForecastResponseDto> getForecastByStoreId(Long storeId, LocalDateTime startDate, LocalDateTime endDate) {
+    public ForecastResponseDto getForecastByStoreId(Long storeId, LocalDateTime startDate, LocalDateTime endDate) {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다: " + storeId));
 
-        List<Forecast> forecastList = forecastRepository.getForecastsByStoreIdAndDateTimeBetween(store.getId(), startDate, endDate);
-        List<ForecastResponseDto> responseDtoList = new ArrayList<>();
-        for (Forecast forecast : forecastList) {
+        List<Forecast> forecastList = forecastRepository.getForecastsByStoreIdAndDateTimeBetween(
+                store.getId(), startDate, endDate);
 
-            ForecastResponseDto result =  ForecastResponseDto.builder()
-                    .dateTime(forecast.getDateTime())
-                    .prophetForecast(forecast.getProphetForecast())
-                    .xgboostForecast(forecast.getXgboostForecast())
-                    .build();
-            responseDtoList.add(result);
-            responseDtoList.sort(Comparator.comparing(ForecastResponseDto::getDateTime));
-        }
-        return responseDtoList;
+        List<ForecastResponseDto.ForecastItem> items = forecastList.stream()
+                .map(forecast -> new ForecastResponseDto.ForecastItem(
+                        forecast.getDateTime(),
+                        forecast.getProphetForecast(),
+                        forecast.getXgboostForecast()))
+                .sorted(Comparator.comparing(ForecastResponseDto.ForecastItem::getDateTime))
+                .toList();
 
+        int total = forecastList.stream()
+                .mapToInt(Forecast::getProphetForecast)
+                .sum();
+
+        return new ForecastResponseDto(total, items);
     }
 
     public void addForecast(ForecastCreateRequestDto dto) {

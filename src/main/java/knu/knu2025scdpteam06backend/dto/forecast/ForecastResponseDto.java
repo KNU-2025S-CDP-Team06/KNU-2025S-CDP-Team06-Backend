@@ -1,19 +1,23 @@
 package knu.knu2025scdpteam06backend.dto.forecast;
 
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
-@Builder
 public class ForecastResponseDto {
 
-    private LocalDateTime dateTime;
+    private Integer totalProphetForecast;
+    private List<ForecastItem> forecastData;
 
-    private Integer prophetForecast;
+    @Data
+    @AllArgsConstructor
+    public static class ForecastItem {
+        private LocalDateTime dateTime;
+        private Integer prophetForecast;
+        private Double xgboostForecast;
+    }
 
-    private Double xgboostForecast;
 }

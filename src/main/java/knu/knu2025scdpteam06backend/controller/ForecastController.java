@@ -25,14 +25,19 @@ public class ForecastController {
             description = "ID와 날짜를 이용하여 매출 예측값을 조회합니다."
     )
     @GetMapping
-    public List<ForecastResponseDto> getForecast(
+    public ForecastResponseDto getForecast(
             HttpServletRequest request,
             @Parameter(
-                    description = "날짜",
+                    description = "시작 날짜",
                     example = "2025-01-01T00:00:00",
                     required = true
             )
             @RequestParam LocalDateTime startDate,
+            @Parameter(
+                    description = "종료 날짜",
+                    example = "2025-01-02T00:00:00",
+                    required = true
+            )
             @RequestParam LocalDateTime endDate
     ) {
         Long storeId = (Long) request.getAttribute("store_id");
