@@ -13,11 +13,11 @@ public class WebClientService{
 
     private final WebClient webClient;
 
-    public RealTimeSalesDto getRealTimeSalesData(Long storeId, String date){
+    public RealTimeSalesDto getRealTimeSalesData(String mbId, String date){
 
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .queryParam("store_id", storeId)
+                        .queryParam("mb_id", mbId)
                         .queryParam("date", date)
                         .build())
                 .retrieve()

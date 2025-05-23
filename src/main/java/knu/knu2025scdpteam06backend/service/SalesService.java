@@ -99,7 +99,13 @@ public class SalesService {
         LocalDate today = LocalDate.now();
         if (requestDto.getEndDate().toLocalDate().equals(today) || requestDto.getEndDate().toLocalDate().isAfter(today)){
 
-            RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(storeId, today.toString());
+            Optional<Store> storeOptional = storeRepository.findById(storeId);
+            if (storeOptional.isEmpty()) {
+                throw new IllegalArgumentException("해당 storeId에 해당하는 매장이 없습니다. id=" + storeId);
+            }
+            Store store = storeOptional.get();
+
+            RealTimeSalesDto realTimeSalesDto = webClientService.getRealTimeSalesData(store.getMbId(), today.toString());
             if (realTimeSalesDto.getTotalRevenue() == 0){
                 result.add(SalesResponseDto.builder()
                         .date(today.atStartOfDay())
